@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'core/constants/api_constants.dart';
 import 'core/constants/app_colors.dart';
 import 'core/providers.dart';
 import 'core/widgets/connectivity_banner.dart';
+import 'features/favorites/presentation/screens/favorites_screen.dart';
+import 'features/pokemon/presentation/screens/catalog_screen.dart';
+import 'features/settings/presentation/screens/settings_screen.dart';
+import 'features/trivia/presentation/screens/trivia_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,31 +19,57 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Pokédex Offline',
+      title: 'Pokédex Offline-First',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primaryRed),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: AppColors.primaryRed,
+          primary: AppColors.primaryRed,
+        ),
         useMaterial3: true,
+        scaffoldBackgroundColor: AppColors.lightBackground,
       ),
-      home: const HomeScreen(),
+      home: const MainNavigationShell(),
     );
   }
 }
 
-class HomeScreen extends ConsumerWidget {
-  const HomeScreen({super.key});
+/// Contenedor principal con barra de navegación inferior y banner de conectividad fijo (IND-01 a IND-05)
+class MainNavigationShell extends ConsumerStatefulWidget {
+  const MainNavigationShell({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MainNavigationShell> createState() => _MainNavigationShellState();
+}
+
+class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
+  int _currentIndex = 0;
+
+  final List<Widget> _screens = const [
+    CatalogScreen(),
+    FavoritesScreen(),
+    TriviaScreen(),
+    SettingsScreen(),
+  ];
+
+  final List<String> _titles = const [
+    'Pokédex Offline',
+    'Mis Favoritos',
+    'Trivia Pokémon',
+    'Inspector & Pruebas PA',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.catching_pokemon, color: Colors.white),
-            SizedBox(width: 8),
+            const Icon(Icons.catching_pokemon, color: Colors.white),
+            const SizedBox(width: 10),
             Text(
-              'Pokédex Offline-First',
-              style: TextStyle(fontWeight: FontWeight.bold),
+              _titles[_currentIndex],
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
             ),
           ],
         ),
@@ -50,7 +78,7 @@ class HomeScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.sync),
-            tooltip: 'Sincronizar',
+            tooltip: 'Sincronizar Catálogo',
             onPressed: () {
               ref.read(syncCoordinatorProvider).syncCatalog(force: true);
             },
@@ -59,107 +87,45 @@ class HomeScreen extends ConsumerWidget {
       ),
       body: Column(
         children: [
-          // 1. Indicador Global de Conectividad (IND-01 a IND-05)
+          // 1. Indicador Global de Conectividad visible en toda la aplicación (IND-01 a IND-05)
           const ConnectivityBanner(),
 
-          // 2. Contenido de prueba interactiva
+          // 2. Pantalla activa según la pestaña seleccionada
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 20),
-                  const Icon(
-                    Icons.catching_pokemon,
-                    size: 80,
-                    color: AppColors.primaryRed,
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Fase 5: Indicador de Conectividad',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'La barra superior está viva y conectada a la base de datos SQLite y al monitor de red.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.black54),
-                  ),
-                  const SizedBox(height: 30),
-
-                  // Botón 1: Forzar Sincronización (azul)
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.sync),
-                      label: const Text('Probar Sincronización (Ver Azul)'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.statusSyncing,
-                        foregroundColor: Colors.white,
-                      ),
-                      onPressed: () {
-                        ref.read(syncCoordinatorProvider).syncCatalog(force: true);
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Botón 2: Simular Caída de API con red activa (PA-08, ver naranja)
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: OutlinedButton.icon(
-                      icon: const Icon(Icons.warning_amber),
-                      label: const Text('Simular API Caída PA-08 (Ver Naranja)'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.statusServiceUnavailable,
-                        side: const BorderSide(
-                          color: AppColors.statusServiceUnavailable,
-                          width: 2,
-                        ),
-                      ),
-                      onPressed: () async {
-                        final prefs = await SharedPreferences.getInstance();
-                        final current =
-                            prefs.getBool(ApiConstants.prefSimulateApiDown) ?? false;
-                        await prefs.setBool(
-                            ApiConstants.prefSimulateApiDown, !current);
-                        ref
-                            .read(connectivityIndicatorProvider.notifier)
-                            .refreshAvailability();
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Tarjeta informativa
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                    child: const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '🧪 Pruebas que puedes hacer ahora mismo:',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                        ),
-                        SizedBox(height: 8),
-                        Text('1. Apaga el Wi-Fi de tu celular: la barra pasa a ROJO.'),
-                        Text('2. Enciende el Wi-Fi: pasa a AZUL y luego a VERDE.'),
-                        Text('3. Pulsa el botón naranja: simula fallo de API (PA-08).'),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+            child: IndexedStack(
+              index: _currentIndex,
+              children: _screens,
             ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.catching_pokemon_outlined),
+            selectedIcon: Icon(Icons.catching_pokemon, color: AppColors.primaryRed),
+            label: 'Catálogo',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.favorite_border),
+            selectedIcon: Icon(Icons.favorite, color: AppColors.primaryRed),
+            label: 'Favoritos',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.sports_esports_outlined),
+            selectedIcon: Icon(Icons.sports_esports, color: AppColors.primaryRed),
+            label: 'Trivia',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.science_outlined),
+            selectedIcon: Icon(Icons.science, color: AppColors.primaryRed),
+            label: 'Inspector PA',
           ),
         ],
       ),

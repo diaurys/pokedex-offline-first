@@ -17,7 +17,7 @@ class ConnectivityBanner extends ConsumerWidget {
     return indicatorAsync.when(
       data: (state) => _buildBanner(context, ref, state),
       loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (error, stack) => const SizedBox.shrink(),
     );
   }
 
