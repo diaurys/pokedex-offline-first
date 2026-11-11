@@ -434,45 +434,48 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
                 ),
               ),
               error: (error, stack) => SliverFillRemaining(
+                hasScrollBody: false,
                 child: Center(
                   child: Padding(
                     padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.error_outline,
-                          size: 64,
-                          color: AppColors.statusOffline,
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'Ocurrió un error al consultar el catálogo',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.error_outline,
+                            size: 64,
+                            color: AppColors.statusOffline,
                           ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          error.toString(),
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: Colors.black54),
-                        ),
-                        const SizedBox(height: 20),
-                        ElevatedButton.icon(
-                          icon: const Icon(Icons.refresh),
-                          label: const Text('Reintentar'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primaryRed,
-                            foregroundColor: Colors.white,
+                          const SizedBox(height: 16),
+                          const Text(
+                            'Ocurrió un error al consultar el catálogo',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                          onPressed: () {
-                            ref.invalidate(pokemonCatalogStreamProvider);
-                          },
-                        ),
-                      ],
+                          const SizedBox(height: 8),
+                          Text(
+                            error.toString(),
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: Colors.black54),
+                          ),
+                          const SizedBox(height: 20),
+                          ElevatedButton.icon(
+                            icon: const Icon(Icons.refresh),
+                            label: const Text('Reintentar'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primaryRed,
+                              foregroundColor: Colors.white,
+                            ),
+                            onPressed: () {
+                              ref.invalidate(pokemonCatalogStreamProvider);
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -484,53 +487,56 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
                     filterState.selectedType == null &&
                     filterState.selectedGeneration == null) {
                   return SliverFillRemaining(
+                    hasScrollBody: false,
                     child: Center(
                       child: Padding(
                         padding: const EdgeInsets.all(32.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.catching_pokemon,
-                              size: 90,
-                              color: Colors.grey,
-                            ),
-                            const SizedBox(height: 20),
-                            const Text(
-                              'Base de datos local vacía',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
+                        child: SingleChildScrollView(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.catching_pokemon,
+                                size: 90,
+                                color: Colors.grey,
                               ),
-                            ),
-                            const SizedBox(height: 8),
-                            const Text(
-                              'Aún no hay Pokémon descargados en el almacenamiento local SQLite. Pulsa el botón para sincronizar el catálogo.',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(color: Colors.black54),
-                            ),
-                            const SizedBox(height: 24),
-                            ElevatedButton.icon(
-                              icon: const Icon(Icons.cloud_download),
-                              label: const Text('Descargar Catálogo'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primaryRed,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 24,
-                                  vertical: 14,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
+                              const SizedBox(height: 20),
+                              const Text(
+                                'Base de datos local vacía',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              onPressed: () {
-                                ref
-                                    .read(syncCoordinatorProvider)
-                                    .syncCatalog(force: true);
-                              },
-                            ),
-                          ],
+                              const SizedBox(height: 8),
+                              const Text(
+                                'Aún no hay Pokémon descargados en el almacenamiento local SQLite. Pulsa el botón para sincronizar el catálogo.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: Colors.black54),
+                              ),
+                              const SizedBox(height: 24),
+                              ElevatedButton.icon(
+                                icon: const Icon(Icons.cloud_download),
+                                label: const Text('Descargar Catálogo'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primaryRed,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                    vertical: 14,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                ),
+                                onPressed: () {
+                                  ref
+                                      .read(syncCoordinatorProvider)
+                                      .syncCatalog(force: true);
+                                },
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -540,42 +546,45 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
                 // Estado 2: Búsqueda sin resultados
                 if (pokemons.isEmpty) {
                   return SliverFillRemaining(
+                    hasScrollBody: false,
                     child: Center(
                       child: Padding(
                         padding: const EdgeInsets.all(32.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.search_off,
-                              size: 70,
-                              color: Colors.grey,
-                            ),
-                            const SizedBox(height: 16),
-                            const Text(
-                              'No se encontraron Pokémon',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                        child: SingleChildScrollView(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.search_off,
+                                size: 70,
+                                color: Colors.grey,
                               ),
-                            ),
-                            const SizedBox(height: 8),
-                            const Text(
-                              'Prueba ajustando los filtros de tipo, generación o el término de búsqueda.',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(color: Colors.black54),
-                            ),
-                            const SizedBox(height: 16),
-                            OutlinedButton(
-                              onPressed: () {
-                                _searchController.clear();
-                                ref
-                                    .read(catalogFilterProvider.notifier)
-                                    .resetFilters();
-                              },
-                              child: const Text('Limpiar Filtros'),
-                            ),
-                          ],
+                              const SizedBox(height: 16),
+                              const Text(
+                                'No se encontraron Pokémon',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'Prueba ajustando los filtros de tipo, generación o el término de búsqueda.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: Colors.black54),
+                              ),
+                              const SizedBox(height: 16),
+                              OutlinedButton(
+                                onPressed: () {
+                                  _searchController.clear();
+                                  ref
+                                      .read(catalogFilterProvider.notifier)
+                                      .resetFilters();
+                                },
+                                child: const Text('Limpiar Filtros'),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
