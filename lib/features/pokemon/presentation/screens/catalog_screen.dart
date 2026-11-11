@@ -260,86 +260,89 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
                     const SizedBox(height: 10),
 
                     // Fila de acciones rápidas (Generación, Orden, Limpiar)
-                    Row(
-                      children: [
-                        // Botón Generación
-                        OutlinedButton.icon(
-                          icon: const Icon(Icons.layers, size: 16),
-                          label: Text(
-                            filterState.selectedGeneration != null
-                                ? 'Gen ${filterState.selectedGeneration}'
-                                : 'Generación',
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: filterState.selectedGeneration != null
-                                ? AppColors.primaryRed
-                                : Colors.black87,
-                            side: BorderSide(
-                              color: filterState.selectedGeneration != null
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          // Botón Generación
+                          OutlinedButton.icon(
+                            icon: const Icon(Icons.layers, size: 16),
+                            label: Text(
+                              filterState.selectedGeneration != null
+                                  ? 'Gen ${filterState.selectedGeneration}'
+                                  : 'Generación',
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: filterState.selectedGeneration != null
                                   ? AppColors.primaryRed
-                                  : Colors.grey.shade300,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                          ),
-                          onPressed: _showGenerationDialog,
-                        ),
-                        const SizedBox(width: 8),
-
-                        // Botón Orden
-                        OutlinedButton.icon(
-                          icon: const Icon(Icons.sort, size: 16),
-                          label: Text(
-                            filterState.sortBy == 'name'
-                                ? 'Nombre'
-                                : filterState.sortBy == 'stats'
-                                    ? 'Estadísticas'
-                                    : 'Número',
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.black87,
-                            side: BorderSide(color: Colors.grey.shade300),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                          ),
-                          onPressed: _showSortDialog,
-                        ),
-
-                        const Spacer(),
-
-                        // Botón Limpiar Filtros si hay alguno activo
-                        if (filterState.selectedType != null ||
-                            filterState.selectedGeneration != null ||
-                            filterState.searchQuery.isNotEmpty)
-                          TextButton(
-                            onPressed: () {
-                              _searchController.clear();
-                              ref
-                                  .read(catalogFilterProvider.notifier)
-                                  .resetFilters();
-                            },
-                            child: const Text(
-                              'Limpiar',
-                              style: TextStyle(
-                                color: AppColors.primaryRed,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
+                                  : Colors.black87,
+                              side: BorderSide(
+                                color: filterState.selectedGeneration != null
+                                    ? AppColors.primaryRed
+                                    : Colors.grey.shade300,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 6,
                               ),
                             ),
+                            onPressed: _showGenerationDialog,
                           ),
-                      ],
+                          const SizedBox(width: 8),
+
+                          // Botón Orden
+                          OutlinedButton.icon(
+                            icon: const Icon(Icons.sort, size: 16),
+                            label: Text(
+                              filterState.sortBy == 'name'
+                                  ? 'Nombre'
+                                  : filterState.sortBy == 'stats'
+                                      ? 'Estadísticas'
+                                      : 'Número',
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.black87,
+                              side: BorderSide(color: Colors.grey.shade300),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 6,
+                              ),
+                            ),
+                            onPressed: _showSortDialog,
+                          ),
+
+                          // Botón Limpiar Filtros si hay alguno activo
+                          if (filterState.selectedType != null ||
+                              filterState.selectedGeneration != null ||
+                              filterState.searchQuery.isNotEmpty) ...[
+                            const SizedBox(width: 8),
+                            TextButton(
+                              onPressed: () {
+                                _searchController.clear();
+                                ref
+                                    .read(catalogFilterProvider.notifier)
+                                    .resetFilters();
+                              },
+                              child: const Text(
+                                'Limpiar',
+                                style: TextStyle(
+                                  color: AppColors.primaryRed,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
                   ],
                 ),
