@@ -2,24 +2,31 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Pokédex (Debug)",
+      "name": "Pokédex (Dispositivo Seleccionado)",
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart"
     },
     {
-      "name": "Pokédex (Profile)",
+      "name": "Pokédex (Emulador Android Pixel 7)",
       "request": "launch",
       "type": "dart",
-      "flutterMode": "profile",
-      "program": "lib/main.dart"
+      "program": "lib/main.dart",
+      "deviceId": "emulator-5554"
     },
     {
-      "name": "Pokédex (Release)",
+      "name": "Pokédex (Chrome Web)",
       "request": "launch",
       "type": "dart",
-      "flutterMode": "release",
-      "program": "lib/main.dart"
+      "program": "lib/main.dart",
+      "deviceId": "chrome"
+    },
+    {
+      "name": "Pokédex (Web Server / Opera)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": ["-d", "web-server", "--web-port=8080", "--web-hostname=localhost"]
     }
   ]
 }
