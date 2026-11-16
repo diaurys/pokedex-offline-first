@@ -197,59 +197,80 @@ lib/
 ├── app/
 ├── core/
 │   ├── constants/
-│   │   ├── api_constants.dart      # URLs, timeouts y endpoints GraphQL v1beta2
-│   │   └── app_colors.dart         # Paleta oficial por tipos de Pokémon
+│   │   ├── api_constants.dart          # URLs, timeouts y endpoints GraphQL v1beta2
+│   │   └── app_colors.dart             # Paleta de pigmentos y sellos armonizada
+│   ├── theme/
+│   │   └── paper_theme.dart            # Design tokens, PaperThemeExtension y tipografía analógica
 │   ├── database/
 │   │   ├── daos/
-│   │   │   ├── favorites_dao.dart  # Persistencia de favoritos
-│   │   │   ├── pokemon_dao.dart    # Streams reactivos e inserción transaccional
-│   │   │   └── sync_dao.dart       # Registro de metadatos de sincronización
+│   │   │   ├── favorites_dao.dart      # Persistencia de favoritos en SQLite
+│   │   │   ├── pokemon_dao.dart        # Streams reactivos e inserción transaccional
+│   │   │   └── sync_dao.dart           # Registro de metadatos de sincronización
 │   │   ├── tables/
-│   │   │   ├── pokemon_table.dart  # Tabla pokemons con contentHash
+│   │   │   ├── pokemon_table.dart      # Tabla pokemons con contentHash
 │   │   │   ├── pokemon_details_tables.dart # Tabla pokemon_types
-│   │   │   └── user_data_tables.dart       # Tablas favorites y sync_metadata
-│   │   ├── app_database.dart       # DriftDatabase con índices e inicialización SQLite/Wasm
-│   │   └── app_database.g.dart     # Código generado por drift_dev
+│   │   │   └── user_data_tables.dart   # Tablas favorites y sync_metadata
+│   │   ├── app_database.dart           # DriftDatabase con índices e inicialización SQLite/Wasm
+│   │   └── app_database.g.dart         # Código generado por drift_dev
 │   ├── errors/
-│   │   ├── exceptions.dart         # Excepciones de red, servidor y BD
-│   │   └── failures.dart           # Fallos de dominio
+│   │   ├── exceptions.dart             # Excepciones de red, servidor y BD
+│   │   └── failures.dart               # Fallos de dominio
 │   ├── network/
-│   │   ├── api_health_service.dart # Monitor de disponibilidad de PokéAPI
-│   │   ├── connectivity_service.dart # Monitor de conectividad física
-│   │   └── connectivity_state.dart # Estados inmutables del indicador
+│   │   ├── api_health_service.dart     # Monitor de disponibilidad de PokéAPI
+│   │   ├── connectivity_service.dart   # Monitor de conectividad física
+│   │   └── connectivity_state.dart     # Estados inmutables del indicador
 │   ├── sync/
-│   │   └── sync_coordinator.dart   # Orquestador de sincronización en 2do plano
+│   │   └── sync_coordinator.dart       # Orquestador de sincronización en 2do plano
 │   ├── utils/
-│   │   └── hash_helper.dart        # Utilidad SHA-256 para integridad
+│   │   └── hash_helper.dart            # Utilidad SHA-256 para integridad
 │   ├── widgets/
-│   │   └── connectivity_banner.dart# Indicador global de conectividad (IND-01)
-│   └── providers.dart              # Inyección de dependencias con Riverpod
+│   │   ├── connectivity_banner.dart    # Cinta técnica de archivador
+│   │   └── rubber_stamp_indicator.dart # Sello de goma global con rotación (-2°)
+│   └── providers.dart                  # Inyección de dependencias con Riverpod
 ├── features/
-│   ├── favorites/                  # Capa de datos y contratos de favoritos
+│   ├── favorites/                      # Capa de datos y contratos de favoritos
 │   └── pokemon/
 │       ├── data/
 │       │   ├── datasources/
 │       │   │   └── pokemon_remote_data_source.dart # Query GraphQL v1beta2 paginada
 │       │   └── repositories/
-│       │       └── pokemon_repository_impl.dart     # Implementación del repositorio
+│       │       └── pokemon_repository_impl.dart    # Implementación del repositorio
 │       ├── domain/
 │       │   ├── entities/
-│       │   │   └── pokemon_entity.dart              # Entidades puras de catálogo
+│       │   │   └── pokemon_entity.dart             # Entidades puras de catálogo
 │       │   └── repositories/
-│       │       └── pokemon_repository.dart          # Interfaz abstracta del repositorio
+│       │       └── pokemon_repository.dart         # Interfaz abstracta del repositorio
 │       └── presentation/
 │           ├── providers/
-│           │   └── catalog_provider.dart            # StreamProvider reactivo
+│           │   └── catalog_provider.dart           # StreamProvider reactivo sobre SQLite
 │           ├── screens/
-│           │   └── catalog_screen.dart              # Catálogo con los 3 estados
+│           │   └── catalog_screen.dart             # Catálogo analógico con los 4 estados
 │           └── widgets/
-│               └── pokemon_card.dart                # Tarjeta visual con gradientes y favoritos
-└── main.dart                       # Punto de entrada con ProviderScope y HomeScreen
+│               ├── paperclip_widget.dart           # Clip de latón vintage para favoritos
+│               ├── risograph_artwork.dart          # Duotono risográfico con desalineado
+│               └── pokemon_card.dart               # Ficha de cartulina técnica
+└── main.dart                           # Punto de entrada con ProviderScope y tema de papel
 ```
 
 ---
 
-## 8. Justificación de Dependencias Externas (RNF-MAN-04)
+## 8. Identidad de Diseño y Dirección de Arte: "Fichero Pokédex"
+
+A diferencia de las interfaces móviles convencionales (que imitan plástico rojo de consola de los 90, degradados de neón o tarjetas de diseño genérico), **Fichero Pokédex** adopta la identidad física y artesanal de un **archivador de campo de historia natural**:
+
+1. **Ficha de Cartulina de Archivo (Index Card):** Cada Pokémon es una ficha técnica individual impresa sobre cartulina Manila (`#FCF8EC`) con borde guillotinado y sombra física de doble capa (`#1F2A2118`), montada sobre un sustrato de papel crema (`#F5EEDB`).
+2. **Ilustración en Risografía Duotono:** Las ilustraciones oficiales se procesan en tiempo de ejecución offline mediante `ColorFiltered` aplicando una bicromía artesanal: pigmento del tipo principal + tinta azul noche profunda (`#141C2B`) con un micrométrico desalineado de registro de 1.5 px.
+3. **Sello de Goma Global de Conectividad:** Reemplaza la barra digital moderna por un sello de tinta física estampado con un ángulo manual de -2° y animación elástica de 180 ms. Muestra los estados obligatorios (IND-01 a IND-05): `EN LÍNEA`, `SIN CONEXIÓN`, `SINCRONIZANDO` y `SERVICIO CAÍDO`, informando la procedencia de datos en SQLite.
+4. **Clip de Latón Envejecido para Favoritos:** La acción de marcar como favorito se representa físicamente mediante un clip sujetapapeles metálico de latón (`#B08D57`) enganchado en el borde superior de la cartulina.
+5. **Sellos Taxonómicos Grabados:** Ningún tipo se comunica únicamente por color (accesibilidad universal): cada uno cuenta con un glifo geométrico grabado en relieve (`▲` Fuego, `▽` Agua, `◇` Planta, `⌁` Eléctrico, etc.), código alfanumérico estampado y pigmento risográfico de alto contraste (WCAG 2.1 AA).
+6. **Estados Analógicos Coherentes:**
+   * **Carga:** Cuadrícula de fichas fantasma en blanco con líneas pautadas de imprenta (sin spinner a pantalla completa).
+   * **Vacío:** Hoja de registro sin imprimir con sello en tinta ámbar y botón estampado «DESCARGAR HOJAS DE CAMPO».
+   * **Error:** Expediente con fallo de lectura estampado en lacre rojo y botón «REINTENTAR ESTAMPADO».
+
+---
+
+## 9. Justificación de Dependencias Externas (RNF-MAN-04)
 
 | Dependencia | Versión | Justificación Técnica |
 |---|---|---|
@@ -266,7 +287,7 @@ lib/
 
 ---
 
-## 9. Instrucciones de Instalación y Ejecución
+## 10. Instrucciones de Instalación y Ejecución
 
 ### Requisitos previos:
 * Flutter SDK $\ge 3.22$
@@ -299,12 +320,12 @@ lib/
 
 ---
 
-## 10. Registros de Decisiones Arquitectónicas (ADR)
+## 11. Registros de Decisiones Arquitectónicas (ADR)
 * [ADR-001: Adopción de Arquitectura Offline-First con Drift (SQLite) y Riverpod](docs/adr/ADR-001-offline-first-architecture.md)
 
 ---
 
-## 11. Declaración de Uso de Inteligencia Artificial
+## 12. Declaración de Uso de Inteligencia Artificial
 * **Herramienta utilizada:** Antigravity (Google DeepMind) y modelos LLM.
 * **Ámbito de uso:** Asistencia en la estructuración de la arquitectura limpia, redacción de consultas GraphQL adaptadas a la versión `v1beta2`, configuración de índices en tablas SQLite con Drift y redacción de documentación técnica.
 * **Validación humana:** Todo el código generado fue inspeccionado, compilado, depurado y validado mediante `dart analyze lib` (0 errores, 0 warnings) y probado en vivo tanto en dispositivo físico Android como en navegador.

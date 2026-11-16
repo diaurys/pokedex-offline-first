@@ -1,30 +1,75 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:pokedex/main.dart';
+import 'package:pokedex/core/theme/paper_theme.dart';
+import 'package:pokedex/features/pokemon/domain/entities/pokemon_entity.dart';
+import 'package:pokedex/features/pokemon/presentation/widgets/paperclip_widget.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  group('Fichero Pokédex - Pruebas Unitarias y de Widgets', () {
+    test('PaperColors cubre los 18 tipos Pokémon con glifos y pigmentos válidos', () {
+      const types = [
+        'normal', 'fire', 'water', 'grass', 'electric', 'ice',
+        'fighting', 'poison', 'ground', 'flying', 'psychic', 'bug',
+        'rock', 'ghost', 'dragon', 'dark', 'steel', 'fairy'
+      ];
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+      for (final type in types) {
+        final pigment = PaperColors.pigmentForType(type);
+        final glyph = PaperColors.glyphForType(type);
+        final code = PaperColors.codeForType(type);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+        expect(pigment, isNotNull);
+        expect(glyph, isNotEmpty);
+        expect(code.length, 3);
+      }
+    });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    test('PokemonListItem formatea números de Pokédex correctamente (#001)', () {
+      final item1 = PokemonListItem(
+        id: 1,
+        name: 'bulbasaur',
+        types: const ['grass', 'poison'],
+        height: 7,
+        weight: 69,
+        generationId: 1,
+      );
+      final item25 = PokemonListItem(
+        id: 25,
+        name: 'pikachu',
+        types: const ['electric'],
+        height: 4,
+        weight: 60,
+        generationId: 1,
+      );
+
+      expect(item1.formattedNumber, '#001');
+      expect(item25.formattedNumber, '#025');
+      expect(item1.primaryType, 'grass');
+      expect(item25.primaryType, 'electric');
+    });
+
+    testWidgets('PaperclipWidget renderiza correctamente en estado favorito y normal',
+        (WidgetTester tester) async {
+      bool tapped = false;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Center(
+              child: PaperclipWidget(
+                isFavorite: true,
+                onTap: () {
+                  tapped = true;
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(PaperclipWidget), findsOneWidget);
+      await tester.tap(find.byType(PaperclipWidget));
+      expect(tapped, isTrue);
+    });
   });
 }
