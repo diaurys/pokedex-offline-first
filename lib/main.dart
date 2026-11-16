@@ -3,10 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/constants/app_colors.dart';
 import 'core/providers.dart';
 import 'core/widgets/connectivity_banner.dart';
-import 'features/favorites/presentation/screens/favorites_screen.dart';
 import 'features/pokemon/presentation/screens/catalog_screen.dart';
-import 'features/settings/presentation/screens/settings_screen.dart';
-import 'features/trivia/presentation/screens/trivia_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,47 +26,30 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         scaffoldBackgroundColor: AppColors.lightBackground,
       ),
-      home: const MainNavigationShell(),
+      home: const HomeScreen(),
     );
   }
 }
 
-/// Contenedor principal con barra de navegación inferior y banner de conectividad fijo (IND-01 a IND-05)
-class MainNavigationShell extends ConsumerStatefulWidget {
-  const MainNavigationShell({super.key});
+/// Pantalla Principal del Avance (40% del Proyecto)
+/// Estructura limpia y fácil de explicar:
+/// 1. AppBar con sincronización manual.
+/// 2. Indicador Global de Conectividad (IND-01, IND-05) que muestra Online/Offline y fuente SQLite.
+/// 3. Catálogo de Pokémon (RF-CAT-01, RF-CAT-04) que observa exclusivamente SQLite (OF-16, 17, 18).
+class HomeScreen extends ConsumerWidget {
+  const HomeScreen({super.key});
 
   @override
-  ConsumerState<MainNavigationShell> createState() => _MainNavigationShellState();
-}
-
-class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
-  int _currentIndex = 0;
-
-  final List<Widget> _screens = const [
-    CatalogScreen(),
-    FavoritesScreen(),
-    TriviaScreen(),
-    SettingsScreen(),
-  ];
-
-  final List<String> _titles = const [
-    'Pokédex Offline',
-    'Mis Favoritos',
-    'Trivia Pokémon',
-    'Inspector & Pruebas PA',
-  ];
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
+        title: const Row(
           children: [
-            const Icon(Icons.catching_pokemon, color: Colors.white),
-            const SizedBox(width: 10),
+            Icon(Icons.catching_pokemon, color: Colors.white),
+            SizedBox(width: 10),
             Text(
-              _titles[_currentIndex],
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
+              'Pokédex Offline-First',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
             ),
           ],
         ),
@@ -80,52 +60,20 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
             icon: const Icon(Icons.sync),
             tooltip: 'Sincronizar Catálogo',
             onPressed: () {
+              // Dispara sincronización asíncrona sin bloquear la UI (OF-03, PA-01)
               ref.read(syncCoordinatorProvider).syncCatalog(force: true);
             },
           ),
         ],
       ),
-      body: Column(
+      body: const Column(
         children: [
-          // 1. Indicador Global de Conectividad visible en toda la aplicación (IND-01 a IND-05)
-          const ConnectivityBanner(),
+          // 1. Indicador Global de Conectividad (Entregable 8: IND-01, IND-05)
+          ConnectivityBanner(),
 
-          // 2. Pantalla activa según la pestaña seleccionada
+          // 2. Catálogo Funcional que observa SQLite reactivamente (Entregable 4 y 6: OF-16, RF-CAT-01)
           Expanded(
-            child: IndexedStack(
-              index: _currentIndex,
-              children: _screens,
-            ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.catching_pokemon_outlined),
-            selectedIcon: Icon(Icons.catching_pokemon, color: AppColors.primaryRed),
-            label: 'Catálogo',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.favorite_border),
-            selectedIcon: Icon(Icons.favorite, color: AppColors.primaryRed),
-            label: 'Favoritos',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.sports_esports_outlined),
-            selectedIcon: Icon(Icons.sports_esports, color: AppColors.primaryRed),
-            label: 'Trivia',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.science_outlined),
-            selectedIcon: Icon(Icons.science, color: AppColors.primaryRed),
-            label: 'Inspector PA',
+            child: CatalogScreen(),
           ),
         ],
       ),

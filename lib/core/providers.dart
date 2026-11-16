@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'database/app_database.dart';
 import 'database/daos/pokemon_dao.dart';
 import 'database/daos/favorites_dao.dart';
-import 'database/daos/trivia_dao.dart';
 import 'database/daos/sync_dao.dart';
 import 'network/api_health_service.dart';
 import 'network/connectivity_service.dart';
@@ -13,10 +12,8 @@ import '../features/pokemon/domain/repositories/pokemon_repository.dart';
 import '../features/pokemon/data/repositories/pokemon_repository_impl.dart';
 import '../features/favorites/domain/repositories/favorites_repository.dart';
 import '../features/favorites/data/repositories/favorites_repository_impl.dart';
-import '../features/trivia/domain/repositories/trivia_repository.dart';
-import '../features/trivia/data/repositories/trivia_repository_impl.dart';
 
-// --- Base de Datos & DAOs ---
+// --- Base de Datos & DAOs (Punto 2 del Avance: Catálogo, Favoritos y SyncMetadata) ---
 final appDatabaseProvider = Provider<AppDatabase>((ref) {
   final db = AppDatabase();
   ref.onDispose(() => db.close());
@@ -29,10 +26,6 @@ final pokemonDaoProvider = Provider<PokemonDao>((ref) {
 
 final favoritesDaoProvider = Provider<FavoritesDao>((ref) {
   return FavoritesDao(ref.watch(appDatabaseProvider));
-});
-
-final triviaDaoProvider = Provider<TriviaDao>((ref) {
-  return TriviaDao(ref.watch(appDatabaseProvider));
 });
 
 final syncDaoProvider = Provider<SyncDao>((ref) {
@@ -77,10 +70,6 @@ final pokemonRepositoryProvider = Provider<PokemonRepository>((ref) {
 
 final favoritesRepositoryProvider = Provider<FavoritesRepository>((ref) {
   return FavoritesRepositoryImpl(ref.watch(favoritesDaoProvider));
-});
-
-final triviaRepositoryProvider = Provider<TriviaRepository>((ref) {
-  return TriviaRepositoryImpl(ref.watch(triviaDaoProvider));
 });
 
 // --- Indicador Global de Conectividad (IND-01 a IND-05) ---

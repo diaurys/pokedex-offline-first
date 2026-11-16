@@ -5,15 +5,19 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers.dart';
 import '../../domain/entities/pokemon_entity.dart';
 
-/// Tarjeta moderna de Pokémon para el catálogo (RF-CAT-01, RF-CAT-07, RF-COM-02, RF-FAV-04)
+/// Tarjeta visual de Pokémon para el Catálogo (Entregable 6: RF-CAT-01)
+/// Muestra:
+/// - Nombre y Número de Pokédex (#001)
+/// - Imagen oficial con respaldo triple (OF-08)
+/// - Badges de Tipos
+/// - Fondo con gradiente dinámico derivado del tipo principal
+/// - Botón de favorito reactivo que persiste en SQLite (<150ms, Entregable 2)
 class PokemonCard extends ConsumerStatefulWidget {
   final PokemonListItem pokemon;
-  final VoidCallback? onTap;
 
   const PokemonCard({
     super.key,
     required this.pokemon,
-    this.onTap,
   });
 
   @override
@@ -49,8 +53,109 @@ class _PokemonCardState extends ConsumerState<PokemonCard>
 
   void _onToggleFavorite() async {
     _favAnimController.forward(from: 0.0);
-    // Persistencia reactiva instantánea en SQLite (<150ms per RF-FAV-04)
+    // Persistencia reactiva instantánea en SQLite (<150ms per Entregable 2)
     await ref.read(favoritesRepositoryProvider).toggleFavorite(widget.pokemon.id);
+  }
+
+  void _showQuickInfoModal(BuildContext context) {
+    final typeColor = AppColors.forType(widget.pokemon.primaryType);
+    final formattedName = widget.pokemon.name.isNotEmpty
+        ? '${widget.pokemon.name[0].toUpperCase()}${widget.pokemon.name.substring(1)}'
+        : '';
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    formattedName,
+                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    widget.pokemon.formattedNumber,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      color: typeColor,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 120,
+                child: CachedNetworkImage(
+                  imageUrl: widget.pokemon.officialArtwork,
+                  fit: BoxFit.contain,
+                  errorWidget: (context, url, error) => Image.asset(
+                    'assets/images/pokeball_placeholder.png',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                children: widget.pokemon.types.map((type) {
+                  final color = AppColors.forType(type);
+                  return Chip(
+                    backgroundColor: color.withValues(alpha: 0.2),
+                    side: BorderSide(color: color),
+                    label: Text(
+                      type.toUpperCase(),
+                      style: TextStyle(
+                        color: color,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildStatItem('Altura', '${widget.pokemon.height / 10} m'),
+                  _buildStatItem('Peso', '${widget.pokemon.weight / 10} kg'),
+                  _buildStatItem('Generación', 'Gen ${widget.pokemon.generationId}'),
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildStatItem(String label, String value) {
+    return Column(
+      children: [
+        Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+        const SizedBox(height: 4),
+        Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+      ],
+    );
   }
 
   @override
@@ -60,9 +165,8 @@ class _PokemonCardState extends ConsumerState<PokemonCard>
         ? '${widget.pokemon.name[0].toUpperCase()}${widget.pokemon.name.substring(1)}'
         : '';
 
-    // Accesibilidad RNF-ACC-01
     final semanticsLabel =
-        'Pokémon $formattedName, número ${widget.pokemon.id}, tipos ${widget.pokemon.types.join(' y ')}${widget.pokemon.isFavorite ? ', en favoritos' : ''}';
+        'Pokémon $formattedName, número ${widget.pokemon.id}, tipos ${widget.pokemon.types.join(' y ')}${widget.pokemon.isFavorite ? ', guardado en favoritos' : ''}';
 
     return Semantics(
       label: semanticsLabel,
@@ -70,7 +174,7 @@ class _PokemonCardState extends ConsumerState<PokemonCard>
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: widget.onTap,
+          onTap: () => _showQuickInfoModal(context),
           borderRadius: BorderRadius.circular(18),
           child: Container(
             decoration: BoxDecoration(
@@ -94,13 +198,13 @@ class _PokemonCardState extends ConsumerState<PokemonCard>
             clipBehavior: Clip.antiAlias,
             child: Stack(
               children: [
-                // 1. Marca de agua decorativa Pokéball de fondo
+                // 1. Marca de agua decorativa Pokéball en el fondo
                 Positioned(
                   right: -24,
                   bottom: -24,
                   child: Opacity(
                     opacity: 0.18,
-                    child: Icon(
+                    child: const Icon(
                       Icons.catching_pokemon,
                       size: 130,
                       color: Colors.white,
@@ -108,7 +212,7 @@ class _PokemonCardState extends ConsumerState<PokemonCard>
                   ),
                 ),
 
-                // 2. Número de Pokédex arriba a la derecha (sutil)
+                // 2. Número de Pokédex arriba a la derecha (#001)
                 Positioned(
                   top: 10,
                   right: 12,
@@ -123,13 +227,13 @@ class _PokemonCardState extends ConsumerState<PokemonCard>
                   ),
                 ),
 
-                // 3. Contenido principal (Nombre, Tipos, Imagen)
+                // 3. Contenido principal (Nombre, Tipos, Imagen y Favorito)
                 Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Nombre
+                      // Nombre del Pokémon
                       Text(
                         formattedName,
                         maxLines: 1,
@@ -143,7 +247,7 @@ class _PokemonCardState extends ConsumerState<PokemonCard>
                       ),
                       const SizedBox(height: 6),
 
-                      // Chips de tipos
+                      // Chips de tipos (1 o 2 tipos per RF-CAT-01)
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: widget.pokemon.types.map((type) {
@@ -172,12 +276,12 @@ class _PokemonCardState extends ConsumerState<PokemonCard>
 
                       const Spacer(),
 
-                      // Fila inferior: Botón favorito + Imagen con Hero
+                      // Fila inferior: Botón favorito + Imagen con respaldos
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          // Botón de favorito con animación (RF-COM-03, RF-FAV-04)
+                          // Botón de favorito reactivo (<150ms per Entregable 2)
                           ScaleTransition(
                             scale: _favScaleAnim,
                             child: Container(
@@ -206,43 +310,39 @@ class _PokemonCardState extends ConsumerState<PokemonCard>
                             ),
                           ),
 
-                          // Imagen con Hero animation (RF-COM-02) y fallback OF-08
-                          Hero(
-                            tag: 'pokemon-artwork-${widget.pokemon.id}',
-                            child: SizedBox(
-                              width: 82,
-                              height: 82,
-                              child: CachedNetworkImage(
-                                imageUrl: widget.pokemon.officialArtwork,
-                                fit: BoxFit.contain,
-                                placeholder: (context, url) => Center(
-                                  child: SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor:
-                                          AlwaysStoppedAnimation<Color>(
-                                        Colors.white.withValues(alpha: 0.6),
-                                      ),
+                          // Imagen oficial con 3 niveles de respaldo (OF-08 / RF-CAT-01)
+                          SizedBox(
+                            width: 82,
+                            height: 82,
+                            child: CachedNetworkImage(
+                              imageUrl: widget.pokemon.officialArtwork,
+                              fit: BoxFit.contain,
+                              placeholder: (context, url) => Center(
+                                child: SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white.withValues(alpha: 0.6),
                                     ),
                                   ),
                                 ),
-                                // Respaldo 1: Sprite si official-artwork falla
-                                errorWidget: (context, url, error) {
-                                  return CachedNetworkImage(
-                                    imageUrl: widget.pokemon.spriteUrl,
-                                    fit: BoxFit.contain,
-                                    // Respaldo 2: Asset local si no hay red ni sprite (OF-08)
-                                    errorWidget: (context, url2, error2) {
-                                      return Image.asset(
-                                        'assets/images/pokeball_placeholder.png',
-                                        fit: BoxFit.contain,
-                                      );
-                                    },
-                                  );
-                                },
                               ),
+                              // Respaldo 1: Sprite si official-artwork falla
+                              errorWidget: (context, url, error) {
+                                return CachedNetworkImage(
+                                  imageUrl: widget.pokemon.spriteUrl,
+                                  fit: BoxFit.contain,
+                                  // Respaldo 2: Asset local offline si no hay red ni sprite (OF-08)
+                                  errorWidget: (context, url2, error2) {
+                                    return Image.asset(
+                                      'assets/images/pokeball_placeholder.png',
+                                      fit: BoxFit.contain,
+                                    );
+                                  },
+                                );
+                              },
                             ),
                           ),
                         ],
