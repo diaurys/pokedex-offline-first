@@ -322,10 +322,3 @@ A diferencia de las interfaces móviles convencionales (que imitan plástico roj
 
 ## 11. Registros de Decisiones Arquitectónicas (ADR)
 * [ADR-001: Adopción de Arquitectura Offline-First con Drift (SQLite) y Riverpod](docs/adr/ADR-001-offline-first-architecture.md)
-
----
-
-## 12. Declaración de Uso de Inteligencia Artificial
-* **Herramienta utilizada:** Antigravity (Google DeepMind) y modelos LLM.
-* **Ámbito de uso:** Asistencia en la estructuración de la arquitectura limpia, redacción de consultas GraphQL adaptadas a la versión `v1beta2`, configuración de índices en tablas SQLite con Drift y redacción de documentación técnica.
-* **Validación humana:** Todo el código generado fue inspeccionado, compilado, depurado y validado mediante `dart analyze lib` (0 errores, 0 warnings) y probado en vivo tanto en dispositivo físico Android como en navegador.
